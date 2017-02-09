@@ -28,11 +28,8 @@
         case AMPopTipExitAnimationCustom: {
             [self.containerView addSubview:self];
             if (self.exitAnimationHandler) {
-                self.exitAnimationHandler(^{
-                    if (completion) {
-                        completion();
-                    }
-                });
+                __weak typeof(self) weakSelf = self;
+                self.exitAnimationHandler(weakSelf, completion);
             }
             break;
         }

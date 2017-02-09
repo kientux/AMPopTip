@@ -498,7 +498,7 @@ NS_ASSUME_NONNULL_END
  * when using a AMPopTipActionAnimationCustom exit animation type.
  * Remember to call the completion block provided
  */
-@property (nonatomic, copy) void (^_Nullable exitAnimationHandler)(void (^_Nonnull completion)(void));
+@property (nonatomic, copy) void (^_Nullable exitAnimationHandler)(AMPopTip *_Nonnull popTip, void (^_Nonnull completion)(void));
 
 /** Arrow position
  *
