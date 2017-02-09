@@ -346,7 +346,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Holds the color of overlay background when `backgroundType` is AMPopTipBackgroundTypeTransparent.
  * Defaults [UIColor blackColor]
  */
-@property (nonatomic, assign) UIColor *overlayBackgroundColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *overlayBackgroundColor UI_APPEARANCE_SELECTOR;
 
 /** Overlay background alpha
  *
