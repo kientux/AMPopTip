@@ -354,6 +354,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CGFloat overlayBackgroundAlpha UI_APPEARANCE_SELECTOR;
 
+/** Highlight fromFrame
+ *
+ * If YES, fromFrame will be highlighted when overlayBackgroundType is AMPopTipBackgroundTypeTransparent
+ */
+@property (nonatomic, assign) BOOL highlightFromFrame UI_APPEARANCE_SELECTOR;
+
+/** Highlight corner radius
+ *
+ * Corner radius of highlighted fromFrame
+ */
+@property (nonatomic, assign) CGFloat highlightCornerRadius UI_APPEARANCE_SELECTOR;
+
 /** Offset for the float action animation
  *
  * Holds the offset between the popover initial and ending state during the float action animation

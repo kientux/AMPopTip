@@ -286,9 +286,27 @@
 
 - (void)buildOverlayBackgroundView {
     self.overlayBackgroundView = [[UIView alloc] initWithFrame:self.containerView.frame];
-    self.overlayBackgroundView.backgroundColor = self.overlayBackgroundColor;
     self.overlayBackgroundView.alpha = 0;
     [self.containerView addSubview:self.overlayBackgroundView];
+
+    if (self.highlightFromFrame) {
+        self.overlayBackgroundView.backgroundColor = [UIColor clearColor];
+
+        UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.containerView.frame];
+        CGRect highlightRect = self.fromFrame;
+        UIBezierPath *highlightPath = [UIBezierPath bezierPathWithRoundedRect:highlightRect
+                                                                 cornerRadius:self.highlightCornerRadius];
+        [path appendPath:highlightPath];
+        path.usesEvenOddFillRule = YES;
+
+        CAShapeLayer *fillLayer = [CAShapeLayer layer];
+        fillLayer.path = path.CGPath;
+        fillLayer.fillRule = kCAFillRuleEvenOdd;
+        fillLayer.fillColor = self.overlayBackgroundColor.CGColor;
+        [self.overlayBackgroundView.layer addSublayer:fillLayer];
+    } else {
+        self.overlayBackgroundView.backgroundColor = self.overlayBackgroundColor;
+    }
 }
 
 - (void)handleTap:(UITapGestureRecognizer *)gesture {
