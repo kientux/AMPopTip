@@ -30,6 +30,17 @@ typedef NS_ENUM(NSInteger, AMPopTipDirection) {
     AMPopTipDirectionNone
 };
 
+/** @enum AMPopTipBackgroundType
+ *
+ * Enum that specifies the background type of poptip.
+ */
+typedef NS_ENUM(NSInteger, AMPopTipBackgroundType) {
+    /** Transparent background */
+    AMPopTipBackgroundTypeTransparent,
+    /** No background, below contents can receive touches */
+    AMPopTipBackgroundTypeNone
+};
+
 /** @enum AMPopTipEntranceAnimation
  *
  * Enum that specifies the type of entrance animation. Entrance animations are performed
@@ -323,6 +334,26 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) AMPopTipActionAnimation actionAnimation UI_APPEARANCE_SELECTOR;
 
+/** Background type
+ *
+ * Holds the enum with the type of background
+ * Defaults AMPopTipBackgroundTypeNone
+ */
+@property (nonatomic, assign) AMPopTipBackgroundType overlayBackgroundType UI_APPEARANCE_SELECTOR;
+
+/** Overlay background color
+ *
+ * Holds the color of overlay background when `backgroundType` is AMPopTipBackgroundTypeTransparent.
+ * Defaults [UIColor blackColor]
+ */
+@property (nonatomic, assign) UIColor *overlayBackgroundColor UI_APPEARANCE_SELECTOR;
+
+/** Overlay background alpha
+ *
+ * Holds the alpha of overlay background when it appeared
+ */
+@property (nonatomic, assign) CGFloat overlayBackgroundAlpha UI_APPEARANCE_SELECTOR;
+
 /** Offset for the float action animation
  *
  * Holds the offset between the popover initial and ending state during the float action animation
@@ -447,7 +478,7 @@ NS_ASSUME_NONNULL_END
  * Please note that the poptip will be automatically added as a subview before firing the block
  * Remember to call the completion block provided
  */
-@property (nonatomic, copy) void (^_Nullable entranceAnimationHandler)(void (^_Nonnull completion)(void));
+@property (nonatomic, copy) void (^_Nullable entranceAnimationHandler)(AMPopTip *_Nonnull popTip, void (^_Nonnull completion)(void));
 
 /** Exit animation
  *
@@ -468,6 +499,12 @@ NS_ASSUME_NONNULL_END
  * A read only reference to the view containing the poptip
  */
 @property (nonatomic, weak, readonly) UIView *_Nullable containerView;
+
+/** Overlay background view
+ *
+ * A read only reference to the overlay background view
+ */
+@property (nonatomic, readonly) UIView *_Nullable overlayBackgroundView;
 
 /** Direction
  *

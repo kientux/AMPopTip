@@ -11,6 +11,11 @@
 @implementation AMPopTip (Exit)
 
 - (void)performExitAnimation:(void (^)())completion {
+
+    [UIView animateWithDuration:self.animationOut delay:self.delayOut options:(UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState) animations:^{
+        self.overlayBackgroundView.alpha = 0;
+    } completion:nil];
+
     switch (self.exitAnimation) {
         case AMPopTipExitAnimationScale: {
             [self exitScale:completion];

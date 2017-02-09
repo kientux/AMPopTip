@@ -11,6 +11,11 @@
 @implementation AMPopTip (Entrance)
 
 - (void)performEntranceAnimation:(void (^)())completion {
+
+    [UIView animateWithDuration:self.animationIn delay:self.delayIn options:(UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState) animations:^{
+        self.overlayBackgroundView.alpha = self.overlayBackgroundAlpha;
+    } completion:nil];
+
     switch (self.entranceAnimation) {
         case AMPopTipEntranceAnimationScale: {
             [self entranceScale:completion];
@@ -27,9 +32,8 @@
         case AMPopTipEntranceAnimationCustom: {
             [self.containerView addSubview:self];
             if (self.entranceAnimationHandler) {
-                self.entranceAnimationHandler(^{
-                    completion();
-                });
+                __weak typeof(self) weakSelf = self;
+                self.entranceAnimationHandler(weakSelf, completion);
             }
         }
         case AMPopTipEntranceAnimationNone: {

@@ -30,6 +30,7 @@
 @property (nonatomic, assign) CGRect textBounds;
 @property (nonatomic, assign) CGFloat maxWidth;
 @property (nonatomic, strong) UIView *customView;
+@property (nonatomic, readwrite) UIView *overlayBackgroundView;
 
 @end
 
@@ -85,6 +86,9 @@
     _entranceAnimation = AMPopTipEntranceAnimationScale;
     _exitAnimation = AMPopTipExitAnimationScale;
     _actionAnimation = AMPopTipActionAnimationNone;
+    _overlayBackgroundType = AMPopTipBackgroundTypeNone;
+    _overlayBackgroundColor = [UIColor blackColor];
+    _overlayBackgroundAlpha = kDefaultOverlayBackgroundAlpha;
     _actionFloatOffset = kDefaultFloatOffset;
     _actionBounceOffset = kDefaultBounceOffset;
     _actionPulseOffset = kDefaultPulseOffset;
@@ -145,9 +149,9 @@
         
         if (self.bubbleOffset > 0 && arrowPosition.x < self.bubbleOffset) {
             self.bubbleOffset = arrowPosition.x - self.arrowSize.width;
-        } else if (self.bubbleOffset < 0 && frame.size.width < fabsf(self.bubbleOffset)) {
+        } else if (self.bubbleOffset < 0 && frame.size.width < fabs(self.bubbleOffset)) {
             self.bubbleOffset = -(arrowPosition.x - self.arrowSize.width);
-        } else if (self.bubbleOffset < 0 && (frame.origin.x - arrowPosition.x) < fabsf(self.bubbleOffset)) {
+        } else if (self.bubbleOffset < 0 && (frame.origin.x - arrowPosition.x) < fabs(self.bubbleOffset)) {
             self.bubbleOffset = -(self.arrowSize.width + self.edgeMargin);
         }
         
@@ -155,7 +159,7 @@
         CGFloat leftSpace = frame.origin.x - self.containerView.frame.origin.x;
         CGFloat rightSpace = self.containerView.frame.size.width - leftSpace - frame.size.width;
         
-        if (self.bubbleOffset < 0 && leftSpace < fabsf(self.bubbleOffset)) {
+        if (self.bubbleOffset < 0 && leftSpace < fabs(self.bubbleOffset)) {
             self.bubbleOffset = -leftSpace + self.edgeMargin;
         } else if (self.bubbleOffset > 0 && rightSpace < self.bubbleOffset) {
             self.bubbleOffset = rightSpace - self.edgeMargin;
@@ -189,15 +193,15 @@
         
         if (self.bubbleOffset > 0 && arrowPosition.y < self.bubbleOffset) {
             self.bubbleOffset = arrowPosition.y - self.arrowSize.width;
-        } else if (self.bubbleOffset < 0 && frame.size.height < fabsf(self.bubbleOffset)) {
+        } else if (self.bubbleOffset < 0 && frame.size.height < fabs(self.bubbleOffset)) {
             self.bubbleOffset = -(arrowPosition.y - self.arrowSize.height);
         }
-        
+
         // Make sure that the bubble doesn't leaves the boundaries of the view
         CGFloat topSpace = frame.origin.y - self.containerView.frame.origin.y;
         CGFloat bottomSpace = self.containerView.frame.size.height - topSpace - frame.size.height;
         
-        if (self.bubbleOffset < 0 && topSpace < fabsf(self.bubbleOffset)) {
+        if (self.bubbleOffset < 0 && topSpace < fabs(self.bubbleOffset)) {
             self.bubbleOffset = -topSpace + self.edgeMargin;
         } else if (self.bubbleOffset > 0 && bottomSpace < self.bubbleOffset) {
             self.bubbleOffset = bottomSpace - self.edgeMargin;
@@ -280,6 +284,13 @@
     [self setNeedsDisplay];
 }
 
+- (void)buildOverlayBackgroundView {
+    self.overlayBackgroundView = [[UIView alloc] initWithFrame:self.containerView.frame];
+    self.overlayBackgroundView.backgroundColor = self.overlayBackgroundColor;
+    self.overlayBackgroundView.alpha = 0;
+    [self.containerView addSubview:self.overlayBackgroundView];
+}
+
 - (void)handleTap:(UITapGestureRecognizer *)gesture {
     if (self.shouldDismissOnTap) {
         [self hide];
@@ -335,9 +346,19 @@
     self.isAnimating = YES;
     [self setup];
     [self setNeedsLayout];
+
+    if (self.overlayBackgroundType != AMPopTipBackgroundTypeNone) {
+        [self buildOverlayBackgroundView];
+    }
+
     [self performEntranceAnimation:^{
-        [self.containerView addGestureRecognizer:self.tapRemoveGesture];
-        [self.containerView addGestureRecognizer:self.swipeRemoveGesture];
+        if (self.overlayBackgroundView) {
+            [self.overlayBackgroundView addGestureRecognizer:self.tapRemoveGesture];
+            [self.overlayBackgroundView addGestureRecognizer:self.swipeRemoveGesture];
+        } else {
+            [self.containerView addGestureRecognizer:self.tapRemoveGesture];
+            [self.containerView addGestureRecognizer:self.swipeRemoveGesture];
+        }
         if (self.appearHandler) {
             self.appearHandler();
         }
@@ -444,8 +465,13 @@
     self.isAnimating = YES;
     [self.dismissTimer invalidate];
     self.dismissTimer = nil;
-    [self.containerView removeGestureRecognizer:self.tapRemoveGesture];
-    [self.containerView removeGestureRecognizer:self.swipeRemoveGesture];
+    if (self.overlayBackgroundView) {
+        [self.overlayBackgroundView removeGestureRecognizer:self.tapRemoveGesture];
+        [self.overlayBackgroundView removeGestureRecognizer:self.swipeRemoveGesture];
+    } else {
+        [self.containerView removeGestureRecognizer:self.tapRemoveGesture];
+        [self.containerView removeGestureRecognizer:self.swipeRemoveGesture];
+    }
 
     void (^completion)() = ^{
         [self.customView removeFromSuperview];
@@ -454,6 +480,7 @@
         [self removeFromSuperview];
         [self.layer removeAllAnimations];
         self.transform = CGAffineTransformIdentity;
+        [self.overlayBackgroundView removeFromSuperview];
         self->_isVisible = NO;
         self->_isAnimating = NO;
         if (self.dismissHandler) {
