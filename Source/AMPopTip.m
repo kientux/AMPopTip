@@ -345,6 +345,8 @@
     [path setLineWidth:self.borderWidth];
     [path stroke];
 
+    self.layer.shadowPath = path.CGPath;
+
     self.paragraphStyle.alignment = self.textAlignment;
 
     NSDictionary *titleAttributes = @{
